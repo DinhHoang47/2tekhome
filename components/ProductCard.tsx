@@ -40,12 +40,13 @@ export function ProductCard({
   return (
     <Link
       href={`/products/${product.id}`}
-      className="group overflow-hidden hover-elevate transition-all duration-300"
+      className="group overflow-hidden hover-elevate transition-all duration-300 h-full flex"
       data-testid={`card-product-${product.id}`}
     >
-      <Card>
-        <CardContent className="p-0">
-          <div className="relative aspect-square overflow-hidden bg-muted">
+      <Card className="w-full flex flex-col">
+        <CardContent className="p-0 flex-1 flex flex-col">
+          {/* Phần hình ảnh - chiều cao cố định */}
+          <div className="relative aspect-square overflow-hidden bg-muted flex-shrink-0">
             <Image
               src={product.imageUrl}
               alt={product.name}
@@ -62,19 +63,21 @@ export function ProductCard({
               </Badge>
             )}
           </div>
-          <div className="p-4 space-y-3">
-            <div className="space-y-1">
+
+          {/* Phần nội dung - chiếm không gian còn lại */}
+          <div className="p-4 space-y-3 flex-1 flex flex-col">
+            <div className="space-y-1 flex-1">
               <h3
-                className="font-semibold text-base line-clamp-2"
+                className="font-semibold text-base line-clamp-2 mb-2"
                 data-testid={`text-product-name-${product.id}`}
               >
                 {product.name}
               </h3>
-              <p className="text-sm text-muted-foreground line-clamp-2">
+              <p className="text-sm text-muted-foreground line-clamp-3 flex-1">
                 {product.description}
               </p>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mt-auto pt-2">
               <p
                 className="text-2xl font-bold text-primary"
                 data-testid={`text-price-${product.id}`}
@@ -91,7 +94,7 @@ export function ProductCard({
         </CardContent>
 
         {variant === "default" && (
-          <CardFooter className="p-4 pt-0">
+          <CardFooter className="p-4 pt-0 flex-shrink-0">
             <Button
               className="w-full gap-2"
               onClick={handleAddToCart}

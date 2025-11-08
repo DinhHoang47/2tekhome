@@ -11,132 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import type { Product } from "@/shared/schema";
 import { Search, Bot, Sparkles, DollarSign } from "lucide-react";
-import useEmblaCarousel from "embla-carousel-react";
-import Autoplay from "embla-carousel-autoplay";
+import ProductCarousel from "@/components/home/ProductCarousel";
+import { EmblaOptionsType } from "embla-carousel";
 
-function FeaturedProductsCarousel({ products }: { products: Product[] }) {
-  // Duplicate products nhiều lần để tạo infinite scroll effect mượt
-  const duplicatedProducts = [
-    ...products,
-    ...products,
-    ...products,
-    ...products,
-    ...products,
-  ];
-
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    {
-      loop: true,
-      align: "center",
-      skipSnaps: false,
-      dragFree: false,
-      slidesToScroll: 1,
-    },
-    [Autoplay({ delay: 2500, stopOnInteraction: false })]
-  );
-
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
-  useEffect(() => {
-    if (!emblaApi) return;
-
-    const onSelect = () => {
-      setSelectedIndex(emblaApi.selectedScrollSnap() % products.length);
-    };
-
-    emblaApi.on("select", onSelect);
-    onSelect();
-
-    return () => {
-      emblaApi.off("select", onSelect);
-    };
-  }, [emblaApi, products.length]);
-
-  return (
-    <section className="py-20  from-muted/30 to-background relative overflow-hidden">
-      <div className="container">
-        <div className="text-center space-y-4 mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold">Sản Phẩm Nổi Bật</h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Những sản phẩm được yêu thích nhất từ khách hàng
-          </p>
-        </div>
-
-        <div className="relative">
-          {/* Carousel */}
-          <div className="overflow-hidden px-4" ref={emblaRef}>
-            <div className="flex gap-6 md:gap-8">
-              {duplicatedProducts.map((product, index) => {
-                const normalizedIndex = index % products.length;
-                const isActive = normalizedIndex === selectedIndex;
-                const isPrev =
-                  normalizedIndex ===
-                  (selectedIndex - 1 + products.length) % products.length;
-                const isNext =
-                  normalizedIndex === (selectedIndex + 1) % products.length;
-
-                return (
-                  <div
-                    key={`${product.id}-${index}`}
-                    className={`
-                      flex-[0_0_70%] min-w-0 
-                      sm:flex-[0_0_55%] 
-                      md:flex-[0_0_38%] 
-                      lg:flex-[0_0_28%]
-                      transition-all duration-700 ease-out
-                      ${
-                        isActive
-                          ? "scale-105 opacity-100 z-20"
-                          : "scale-90 opacity-60 z-10"
-                      }
-                      ${isPrev || isNext ? "md:scale-95 md:opacity-80" : ""}
-                    `}
-                  >
-                    <div
-                      className={`
-                      transition-all duration-700 ease-out
-                      ${
-                        isActive
-                          ? "md:scale-110 md:-translate-y-6 shadow-2xl shadow-primary/20"
-                          : ""
-                      }
-                    `}
-                    >
-                      <ProductCard product={product} variant="carousel" />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Dots Indicator */}
-          <div className="flex justify-center gap-2 mt-8">
-            {products.map((_, index) => (
-              <button
-                key={index}
-                className={`
-                  h-2.5 rounded-full transition-all duration-300
-                  ${
-                    index === selectedIndex
-                      ? "w-10 bg-primary shadow-lg shadow-primary/50"
-                      : "w-2.5 bg-muted-foreground/30 hover:bg-muted-foreground/60"
-                  }
-                `}
-                onClick={() => emblaApi?.scrollTo(index)}
-                data-testid={`carousel-dot-${index}`}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Decorative gradient overlays for depth */}
-      <div className="absolute left-0 top-0 bottom-0 w-32 from-muted/30 to-transparent pointer-events-none z-10" />
-      <div className="absolute right-0 top-0 bottom-0 w-32  from-muted/30 to-transparent pointer-events-none z-10" />
-    </section>
-  );
-}
+const OPTIONS: EmblaOptionsType = { loop: true };
 
 export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -166,7 +44,7 @@ export default function Home() {
     return matchesSearch && matchesCategory && matchesPrice;
   });
 
-  const featuredProducts = products?.filter((p) => p.featured).slice(0, 3);
+  const featuredProducts = products?.filter((p) => p.featured);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -199,7 +77,14 @@ export default function Home() {
 
         {/* Featured Products Carousel */}
         {featuredProducts && featuredProducts.length > 0 && (
-          <FeaturedProductsCarousel products={featuredProducts} />
+          <div className="container">
+            <div className="py-8">
+              <div className="flex flex-col gap-6">
+                <h2 className="text-3xl font-bold">Sản phẩm nổi bật</h2>
+                <ProductCarousel products={products ?? []} options={OPTIONS} />
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Products Section */}
