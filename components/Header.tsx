@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { getCart, getCartItemCount } from "@/lib/cart";
-import { useAuth } from "@/hooks/useAuth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +20,7 @@ export function Header() {
   const pathname = usePathname();
   const [cartCount, setCartCount] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, isAdmin } = useAuth();
+  // const { user, isAdmin } = useAuth();
 
   useEffect(() => {
     const updateCartCount = () => {
@@ -88,14 +87,8 @@ export function Header() {
             </Link>
           </Button>
 
-          {user && isAdmin && (
-            <Link href="/admin">
-              <Button>Admin</Button>
-            </Link>
-          )}
-
           {/* User menu */}
-          {user ? (
+          {/* {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button>
@@ -133,7 +126,7 @@ export function Header() {
             <Button asChild>
               <Link href="/api/login">Đăng Nhập</Link>
             </Button>
-          )}
+          )} */}
 
           {/* Mobile menu button */}
           <button

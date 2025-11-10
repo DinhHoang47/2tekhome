@@ -27,7 +27,9 @@ export const sessions = pgTable(
 
 // User storage table
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   email: varchar("email").unique().notNull(),
   password: varchar("password"),
   firstName: varchar("first_name"),
@@ -58,7 +60,9 @@ export const products = pgTable("products", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   category: varchar("category", { length: 100 }).notNull(), // 'robot-vacuum' or 'smart-device'
   imageUrl: text("image_url").notNull(),
-  specifications: jsonb("specifications").$type<Record<string, string>>().notNull(),
+  specifications: jsonb("specifications")
+    .$type<Record<string, string>>()
+    .notNull(),
   stock: integer("stock").default(0).notNull(),
   featured: boolean("featured").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
@@ -85,7 +89,14 @@ export const orders = pgTable("orders", {
   shippingAddress: text("shipping_address").notNull(),
   notes: text("notes"),
   items: jsonb("items")
-    .$type<Array<{ productId: string; productName: string; quantity: number; price: string }>>()
+    .$type<
+      Array<{
+        productId: string;
+        productName: string;
+        quantity: number;
+        price: string;
+      }>
+    >()
     .notNull(),
   totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
   status: varchar("status", { length: 50 }).default("pending").notNull(), // pending, processing, completed, cancelled
