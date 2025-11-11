@@ -77,15 +77,17 @@ export function ProductCard({
                 {product.description}
               </p>
             </div>
-            <div className="flex items-center justify-between mt-auto pt-2">
+            <div className="flex-col md:flex-row items-center justify-between mt-auto pt-2">
               <p
-                className="text-2xl font-bold text-primary"
+                className="text-xl md:text-2xl font-bold text-primary"
                 data-testid={`text-price-${product.id}`}
               >
                 {formatPrice(product.price)}
               </p>
               {product.stock > 0 ? (
-                <Badge className="text-xs">Còn hàng</Badge>
+                <Badge variant={"outline"} className="text-xs">
+                  Còn hàng
+                </Badge>
               ) : (
                 <Badge className="text-xs">Hết hàng</Badge>
               )}
@@ -94,7 +96,7 @@ export function ProductCard({
         </CardContent>
 
         {variant === "default" && (
-          <CardFooter className="p-4 pt-0 flex-shrink-0">
+          <CardFooter className="p-4 pt-0 shrink-0">
             <Button
               className="w-full gap-2"
               onClick={handleAddToCart}

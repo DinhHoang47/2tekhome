@@ -22,7 +22,11 @@ const config: Config = {
         "2xl": "1400px",
       },
     },
-    extend: {},
+    extend: {
+      width: {
+        sidebar: "16rem", // hoặc `var(--sidebar-width)` nếu muốn
+      },
+    },
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 };

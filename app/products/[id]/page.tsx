@@ -54,7 +54,7 @@ export default function ProductDetail() {
         <div className="container">
           <Button
             variant="ghost"
-            className="mb-6 gap-2"
+            className="mb-6 gap-2 cursor-pointer"
             onClick={() => router.push("/")}
             data-testid="button-back"
           >
