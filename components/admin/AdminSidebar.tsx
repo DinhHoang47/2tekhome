@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
 import {
   Sidebar,
   SidebarContent,
@@ -25,6 +24,7 @@ import {
   FileText,
   LogOut,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const menuItems = [
   {
@@ -52,7 +52,6 @@ const menuItems = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { toast } = useToast();
 
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -60,17 +59,14 @@ export function AdminSidebar() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({
-        title: "Đăng xuất thành công",
+      toast.success("Đăng xuất thành công", {
         description: "Bạn đã đăng xuất khỏi hệ thống",
       });
       setTimeout(() => router.push("/admin/login"), 500);
     },
     onError: (error: Error) => {
-      toast({
-        title: "Lỗi",
+      toast.error("Lỗi", {
         description: error.message || "Không thể đăng xuất",
-        variant: "destructive",
       });
     },
   });

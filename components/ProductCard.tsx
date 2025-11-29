@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingCart } from "lucide-react";
 import type { Product } from "@/shared/schema";
 import { addToCart } from "@/lib/cart";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -19,14 +19,11 @@ export function ProductCard({
   product,
   variant = "default",
 }: ProductCardProps) {
-  const { toast } = useToast();
-
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     addToCart(product, 1);
-    toast({
-      title: "Đã thêm vào giỏ hàng",
+    toast.success("Đã thêm vào giỏ hàng", {
       description: `${product.name} đã được thêm vào giỏ hàng`,
     });
   };
@@ -56,7 +53,7 @@ export function ProductCard({
             />
             {product.featured && (
               <Badge
-                className="absolute top-3 right-3"
+                className="absolute top-3 right-3 bg-linear-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md"
                 data-testid={`badge-featured-${product.id}`}
               >
                 Nổi Bật

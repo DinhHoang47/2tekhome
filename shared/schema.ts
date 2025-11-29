@@ -60,6 +60,7 @@ export const products = pgTable("products", {
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   category: varchar("category", { length: 100 }).notNull(), // 'robot-vacuum' or 'smart-device'
   imageUrl: text("image_url").notNull(),
+  images: jsonb("images").$type<string[]>().notNull().default([]),
   specifications: jsonb("specifications")
     .$type<Record<string, string>>()
     .notNull(),
@@ -134,11 +135,18 @@ export const articles = pgTable("articles", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const insertArticleSchema = createInsertSchema(articles).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const insertArticleSchema = createInsertSchema(articles)
+  .omit({
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .extend({
+    publishedAt: z.preprocess(
+      (v) => (typeof v === "string" ? new Date(v) : v),
+      z.date().nullable().optional()
+    ),
+  });
 
 export type InsertArticle = z.infer<typeof insertArticleSchema>;
 export type Article = typeof articles.$inferSelect;

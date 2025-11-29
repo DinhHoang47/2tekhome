@@ -203,6 +203,11 @@
   --foreground: oklch(0.145 0 0);
 
   --sidebar-width: 16rem;
+
+  /* Slick custome */
+  /* --arrow-bg-color: #3b82f6; */
+  /* --arrow-hover-color: #2563eb; */
+  --arrow-text-color: #2563eb;
 }
 
 .dark {
@@ -299,12 +304,29 @@
      border-color: hsl(var(--border));
   }
 
+  h1, h2, h3, h4, h5, h6 {
+    font-size: revert;
+    font-weight: revert;
+    margin: revert;
+  }
+
   body {
     font-family: var(--font-sans); 
     -webkit-font-smoothing: antialiased; 
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
+  .slick-prev, .slick-next {
+  background: var(--arrow-bg-color) !important;
+}
+
+.slick-prev:hover, .slick-next:hover {
+  background: var(--arrow-hover-color) !important;
+}
+
+.slick-prev:before, .slick-next:before {
+  color: var(--arrow-text-color) !important;
+}
 }
 
 @custom-media --sm (min-width: 640px);

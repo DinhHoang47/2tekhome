@@ -4,15 +4,14 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
-import { useToast } from "@/hooks/use-toast";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ShoppingCart, TrendingUp } from "lucide-react";
 import type { Product, Order } from "@/shared/schema";
+import { toast } from "sonner";
 
 export default function AdminPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const { isAuthenticated, isLoading, isAdmin } = useAuth();
 
   // --- Query data ---
@@ -28,20 +27,16 @@ export default function AdminPage() {
   // --- Auth check ---
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
+      toast.error("Unauthorized", {
         description: "Bạn cần đăng nhập để truy cập trang admin...",
-        variant: "destructive",
       });
       setTimeout(() => router.push("/admin/login"), 500);
       return;
     }
 
     if (!isLoading && isAuthenticated && !isAdmin) {
-      toast({
-        title: "Không có quyền truy cập",
+      toast.error("Không có quyền truy cập", {
         description: "Bạn không có quyền truy cập trang admin",
-        variant: "destructive",
       });
       setTimeout(() => router.push("/"), 500);
     }

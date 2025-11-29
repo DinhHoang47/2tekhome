@@ -13,7 +13,7 @@ import {
   type InsertArticle,
 } from "@/shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and, or, ne, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -108,6 +108,43 @@ export class DatabaseStorage implements IStorage {
       .from(products)
       .where(eq(products.id, id));
     return product;
+  }
+
+  async getRelatedProducts(
+    currentProductId: string,
+    category: string,
+    limit: number = 10
+  ): Promise<Product[]> {
+    try {
+      const relatedProducts = await db
+        .select()
+        .from(products)
+        .where(
+          and(
+            ne(products.id, currentProductId), // Loại trừ sản phẩm hiện tại
+            or(
+              eq(products.category, category), // Ưu tiên cùng category
+              products.featured // Hoặc sản phẩm nổi bật
+            )
+          )
+        )
+        .orderBy(
+          sql`
+          CASE 
+            WHEN ${products.category} = ${category} THEN 1 
+            ELSE 2 
+          END,
+          ${products.featured} DESC,
+          ${products.createdAt} DESC
+        `
+        )
+        .limit(limit);
+
+      return relatedProducts;
+    } catch (error) {
+      console.error("Error fetching related products:", error);
+      return [];
+    }
   }
 
   async createProduct(productData: InsertProduct): Promise<Product> {

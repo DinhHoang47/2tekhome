@@ -24,12 +24,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { Lock } from "lucide-react";
+import { toast } from "sonner";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const form = useForm<LoginCredentials>({
@@ -55,8 +54,7 @@ export default function AdminLoginPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
-      toast({
-        title: "Thành công",
+      toast.success("Thành công", {
         description: "Đăng nhập thành công!",
       });
       setTimeout(() => {
@@ -65,10 +63,8 @@ export default function AdminLoginPage() {
     },
     onError: (error: Error) => {
       setIsLoading(false);
-      toast({
-        title: "Lỗi",
+      toast.error("Lỗi", {
         description: error.message || "Đăng nhập thất bại",
-        variant: "destructive",
       });
     },
   });
