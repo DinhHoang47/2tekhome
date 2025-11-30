@@ -20,6 +20,7 @@ import { ArrowLeft, Trash2, X, Star, StarOff } from "lucide-react";
 import type { Product } from "@/shared/schema";
 import { ImageUpload } from "@/components/ImageUpload";
 import { toast } from "sonner";
+import { MarkdownEditorWithUpload } from "../../articles/[id]/edit/components/MarkdownEditor";
 
 export default function ProductEditPage() {
   const { isAuthenticated, isLoading, isAdmin } = useAuth();
@@ -31,6 +32,7 @@ export default function ProductEditPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    descriptionContent: "", // Thêm field mới
     price: "",
     category: "robot-vacuum",
     imageUrl: "",
@@ -78,6 +80,7 @@ export default function ProductEditPage() {
       setFormData({
         name: product.name,
         description: product.description,
+        descriptionContent: product.descriptionContent || "", // Thêm field mới
         price: product.price,
         category: product.category,
         imageUrl: product.imageUrl,
@@ -216,7 +219,7 @@ export default function ProductEditPage() {
       </header>
 
       <main className="flex-1 overflow-y-auto p-6">
-        <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+        <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
           <div className="space-y-2">
             <Label htmlFor="name">Tên Sản Phẩm *</Label>
             <Input
@@ -231,7 +234,7 @@ export default function ProductEditPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Mô Tả *</Label>
+            <Label htmlFor="description">Mô Tả Ngắn *</Label>
             <Textarea
               id="description"
               value={formData.description}
@@ -242,8 +245,30 @@ export default function ProductEditPage() {
                 })
               }
               required
+              placeholder="Mô tả ngắn gọn về sản phẩm, hiển thị ở trang danh sách sản phẩm"
               data-testid="input-product-description"
             />
+          </div>
+
+          {/* Nội dung giới thiệu sản phẩm với Markdown Editor */}
+          <div className="space-y-2">
+            <Label>Nội Dung Giới Thiệu Chi Tiết</Label>
+            <MarkdownEditorWithUpload
+              value={formData.descriptionContent}
+              onChange={(value) =>
+                setFormData({
+                  ...formData,
+                  descriptionContent: value,
+                })
+              }
+              height={500}
+              placeholder="Nhập nội dung chi tiết về sản phẩm, tính năng, hướng dẫn sử dụng..."
+              folder="2tek-home/products"
+            />
+            <p className="text-sm text-muted-foreground">
+              Nội dung này sẽ hiển thị ở tab "Giới Thiệu Sản Phẩm" trên trang
+              chi tiết sản phẩm. Hỗ trợ định dạng Markdown và upload ảnh.
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

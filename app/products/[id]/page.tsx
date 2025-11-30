@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import {
   ShoppingCart,
   ArrowLeft,
@@ -187,7 +189,7 @@ export default function ProductDetail() {
                       {getAllImages().map((image, index) => (
                         <button
                           key={index}
-                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                          className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
                             index === selectedImageIndex
                               ? "border-primary ring-2 ring-primary"
                               : "border-muted hover:border-gray-400"
@@ -407,12 +409,47 @@ export default function ProductDetail() {
                           </h3>
                           <div className="prose prose-lg max-w-none">
                             {product.descriptionContent ? (
-                              <div
-                                className="product-description-content"
-                                dangerouslySetInnerHTML={renderHTMLContent(
-                                  product.descriptionContent
-                                )}
-                              />
+                              <section className="py-12">
+                                <div className="container max-w-4xl">
+                                  <article
+                                    className="prose prose-lg max-w-none dark:prose-invert
+                                  prose-headings:font-bold prose-headings:tracking-tight
+                                  prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
+                                  prose-p:leading-relaxed prose-p:text-foreground/90
+                                  prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+                                  prose-img:rounded-lg prose-img:shadow-md
+                                  prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded
+                                  prose-pre:bg-muted prose-pre:border
+                                  prose-blockquote:border-l-primary prose-blockquote:bg-muted/50 prose-blockquote:py-1
+                                  prose-table:border prose-table:border-collapse
+                                  prose-th:border prose-th:border-gray-300 prose-th:p-2 prose-th:bg-gray-100
+                                  prose-td:border prose-td:border-gray-300 prose-td:p-2"
+                                    data-testid="article-content"
+                                  >
+                                    <ReactMarkdown
+                                      remarkPlugins={[remarkGfm]}
+                                      components={{
+                                        table: ({ node, ...props }) => (
+                                          <div className="overflow-x-auto my-6">
+                                            <table
+                                              {...props}
+                                              className="w-full border border-gray-300 border-collapse text-center"
+                                            />
+                                          </div>
+                                        ),
+                                        tbody: ({ node, ...props }) => (
+                                          <tbody
+                                            className="[&>tr:nth-child(even)]:bg-gray-50 dark:[&>tr:nth-child(even)]:bg-gray-800/50"
+                                            {...props}
+                                          />
+                                        ),
+                                      }}
+                                    >
+                                      {product.descriptionContent}
+                                    </ReactMarkdown>
+                                  </article>
+                                </div>
+                              </section>
                             ) : (
                               <div className="text-center py-8 text-muted-foreground">
                                 <p>
