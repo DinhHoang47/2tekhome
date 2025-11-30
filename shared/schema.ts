@@ -57,6 +57,7 @@ export const products = pgTable("products", {
     .default(sql`gen_random_uuid()`),
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description").notNull(),
+  descriptionContent: text("description_content"),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   category: varchar("category", { length: 100 }).notNull(), // 'robot-vacuum' or 'smart-device'
   imageUrl: text("image_url").notNull(),

@@ -1,6 +1,6 @@
 // components/ui/ImageUpload.tsx
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,10 @@ interface ImageUploadProps {
   disabled?: boolean;
   label?: string;
   previewClassName?: string;
+  buttonText?: string;
+  onUploadStart?: () => void;
+  onUploadEnd?: () => void;
+  showUrlInput?: boolean;
 }
 
 export function ImageUpload({
@@ -25,8 +29,13 @@ export function ImageUpload({
   disabled = false,
   label = "Hình Ảnh",
   previewClassName = "w-32 h-32 object-cover rounded-md",
+  buttonText = "Chọn Ảnh",
+  onUploadStart,
+  onUploadEnd,
+  showUrlInput = true,
 }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleImageUpload = async (file: File) => {
     if (!file) return;
@@ -48,6 +57,7 @@ export function ImageUpload({
     }
 
     setIsUploading(true);
+    onUploadStart?.();
 
     try {
       const formData = new FormData();
@@ -77,38 +87,44 @@ export function ImageUpload({
       });
     } finally {
       setIsUploading(false);
+      onUploadEnd?.();
     }
+  };
+
+  const handleButtonClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
+      {label && <Label>{label}</Label>}
       <div className="space-y-3">
         <div className="flex gap-2">
           <Input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (file) {
                 await handleImageUpload(file);
+                // Reset input để cho phép chọn lại file cùng tên
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = "";
+                }
               }
             }}
             disabled={disabled || isUploading}
-            className="flex-1"
+            className="hidden" // Ẩn input, chỉ dùng nút button
           />
           <Button
             type="button"
             variant="outline"
             disabled={disabled || isUploading}
-            onClick={() =>
-              document
-                .querySelector<HTMLInputElement>('input[type="file"]')
-                ?.click()
-            }
+            onClick={handleButtonClick}
           >
             <Upload className="h-4 w-4 mr-2" />
-            Chọn Ảnh
+            {buttonText}
           </Button>
         </div>
 
@@ -116,8 +132,8 @@ export function ImageUpload({
           <div className="text-sm text-blue-600">Đang tải lên...</div>
         )}
 
-        {/* Image Preview */}
-        {value && (
+        {/* Image Preview - chỉ hiển thị khi có value VÀ đang không upload ảnh mới */}
+        {value && !isUploading && (
           <div className="mt-2">
             <Label>Preview:</Label>
             <div className="mt-1 p-2 border rounded-md">
@@ -127,16 +143,18 @@ export function ImageUpload({
         )}
 
         {/* Manual URL Input as fallback */}
-        <div className="space-y-2">
-          <Label htmlFor="imageUrl">Hoặc nhập URL hình ảnh:</Label>
-          <Input
-            id="imageUrl"
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="https://example.com/image.jpg"
-            disabled={disabled}
-          />
-        </div>
+        {showUrlInput && (
+          <div className="space-y-2">
+            <Label htmlFor="imageUrl">Hoặc nhập URL hình ảnh:</Label>
+            <Input
+              id="imageUrl"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="https://example.com/image.jpg"
+              disabled={disabled}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

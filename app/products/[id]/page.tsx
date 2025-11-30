@@ -15,6 +15,8 @@ import {
   Shield,
   ShoppingBag,
   MessageCircle,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import type { Product } from "@/shared/schema";
 import { addToCart } from "@/lib/cart";
@@ -29,6 +31,8 @@ export default function ProductDetail() {
   const id = params?.id as string;
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [activeTab, setActiveTab] = useState<"specs" | "description">("specs");
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -53,6 +57,49 @@ export default function ProductDetail() {
       style: "currency",
       currency: "VND",
     }).format(parseFloat(price));
+  };
+
+  const nextImage = () => {
+    if (product?.images) {
+      setSelectedImageIndex((prev) =>
+        prev === product.images.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+
+  const prevImage = () => {
+    if (product?.images) {
+      setSelectedImageIndex((prev) =>
+        prev === 0 ? product.images.length - 1 : prev - 1
+      );
+    }
+  };
+
+  // Get the current image to display
+  const getCurrentImage = () => {
+    if (!product) return "";
+
+    if (product.images && product.images.length > 0) {
+      return product.images[selectedImageIndex];
+    }
+
+    return product.imageUrl;
+  };
+
+  // Get all available images
+  const getAllImages = () => {
+    if (!product) return [];
+
+    if (product.images && product.images.length > 0) {
+      return product.images;
+    }
+
+    return [product.imageUrl];
+  };
+
+  // Render HTML content safely
+  const renderHTMLContent = (content: string) => {
+    return { __html: content };
   };
 
   return (
@@ -84,15 +131,46 @@ export default function ProductDetail() {
           ) : product ? (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-                {/* Product Image */}
+                {/* Product Images Section */}
                 <div className="space-y-4">
+                  {/* Main Image */}
                   <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
                     <img
-                      src={product.imageUrl}
+                      src={getCurrentImage()}
                       alt={product.name}
                       className="h-full w-full object-cover"
-                      data-testid="img-product"
+                      data-testid="img-product-main"
                     />
+
+                    {/* Navigation Arrows - Only show if multiple images */}
+                    {getAllImages().length > 1 && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-8 w-8"
+                          onClick={prevImage}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full h-8 w-8"
+                          onClick={nextImage}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
+
+                    {/* Image Counter - Only show if multiple images */}
+                    {getAllImages().length > 1 && (
+                      <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-sm">
+                        {selectedImageIndex + 1} / {getAllImages().length}
+                      </div>
+                    )}
+
                     {product.featured && (
                       <Badge
                         className="absolute top-3 right-3 bg-linear-to-r from-blue-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-md"
@@ -102,6 +180,29 @@ export default function ProductDetail() {
                       </Badge>
                     )}
                   </div>
+
+                  {/* Thumbnail Images - Only show if multiple images */}
+                  {getAllImages().length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto py-2">
+                      {getAllImages().map((image, index) => (
+                        <button
+                          key={index}
+                          className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                            index === selectedImageIndex
+                              ? "border-primary ring-2 ring-primary"
+                              : "border-muted hover:border-gray-400"
+                          }`}
+                          onClick={() => setSelectedImageIndex(index)}
+                        >
+                          <img
+                            src={image}
+                            alt={`${product.name} - Hình ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Product Info */}
@@ -237,37 +338,99 @@ export default function ProductDetail() {
                       </Button>
                     </CardContent>
                   </Card>
-                  {/* Specifications */}
-                  <Card>
-                    <CardContent className="p-6 space-y-4">
-                      <h3 className="text-xl font-semibold">
-                        Thông Số Kỹ Thuật
-                      </h3>
-                      <div className="space-y-3">
-                        {Object.entries(product.specifications).map(
-                          ([key, value]) => (
-                            <div
-                              key={key}
-                              className="flex justify-between py-2 border-b last:border-0"
-                            >
-                              <span className="text-muted-foreground">
-                                {key}
-                              </span>
-                              <span className="font-medium text-right">
-                                {typeof value === "object"
-                                  ? JSON.stringify(value)
-                                  : String(value)}
-                              </span>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
                 </div>
               </div>
+
+              {/* Product Details Tabs Section */}
+              <section className="mt-12">
+                <Card>
+                  <CardContent className="p-0">
+                    {/* Tabs Navigation */}
+                    <div className="border-b">
+                      <div className="flex space-x-8 px-6">
+                        <button
+                          className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
+                            activeTab === "specs"
+                              ? "border-primary text-primary"
+                              : "border-transparent text-muted-foreground hover:text-foreground"
+                          }`}
+                          onClick={() => setActiveTab("specs")}
+                        >
+                          Thông Số Kỹ Thuật
+                        </button>
+                        <button
+                          className={`py-4 px-2 border-b-2 font-medium text-sm transition-colors ${
+                            activeTab === "description"
+                              ? "border-primary text-primary"
+                              : "border-transparent text-muted-foreground hover:text-foreground"
+                          }`}
+                          onClick={() => setActiveTab("description")}
+                        >
+                          Giới Thiệu Sản Phẩm
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Tabs Content */}
+                    <div className="p-6">
+                      {activeTab === "specs" && (
+                        <div className="space-y-4">
+                          <h3 className="text-xl font-semibold">
+                            Thông Số Kỹ Thuật
+                          </h3>
+                          <div className="space-y-3">
+                            {Object.entries(product.specifications).map(
+                              ([key, value]) => (
+                                <div
+                                  key={key}
+                                  className="flex justify-between py-2 border-b last:border-0"
+                                >
+                                  <span className="text-muted-foreground">
+                                    {key}
+                                  </span>
+                                  <span className="font-medium text-right">
+                                    {typeof value === "object"
+                                      ? JSON.stringify(value)
+                                      : String(value)}
+                                  </span>
+                                </div>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {activeTab === "description" && (
+                        <div className="space-y-4">
+                          <h3 className="text-xl font-semibold">
+                            Giới Thiệu Sản Phẩm
+                          </h3>
+                          <div className="prose prose-lg max-w-none">
+                            {product.descriptionContent ? (
+                              <div
+                                className="product-description-content"
+                                dangerouslySetInnerHTML={renderHTMLContent(
+                                  product.descriptionContent
+                                )}
+                              />
+                            ) : (
+                              <div className="text-center py-8 text-muted-foreground">
+                                <p>
+                                  Nội dung giới thiệu sản phẩm đang được cập
+                                  nhật...
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </section>
+
               {/* Related Products Section */}
-              <section className="mb-16">
+              <section className="mt-16 mb-16">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold">Sản Phẩm Liên Quan</h2>
                 </div>
